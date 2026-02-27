@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cattle Manager </title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="notification-area"></div>
+    <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeQR()">&times;</span>
+            <h3>Cattle Identity Tag</h3>
+            <div id="qr-image-container"></div>
+            <p id="qr-caption" style="margin-top: 10px; font-weight: bold;"></p>
+            <button class="btn-primary" onclick="window.print()">Print Label</button>
+        </div>
+    </div>
+    <div>
+        <!-- <video autoplay muted loop id="bg-video" poster="Cow Back.png">
+            <source src=12728549_3840_2160_30fps.mp4 type="video/webm">
+            <source src="12728549_3840_2160_30fps.mp4" type="video/mp4">
+        </video> -->
+        <div class="container" id="auth-container">
+            <div class="form-container" id="login-form">
+                <h1><i class="fas fa-cow"></i> CattleManager </h1>
+                <h2>Login</h2>
+                <input type="text" id="login-user" placeholder="Username">
+                <input type="password" id="login-pass" placeholder="Password">
+                <button onclick="login()">Login</button>
+                <p>New here? <span class="toggle-link" onclick="toggleAuth('register')">Create Account</span></p>
+            </div>
+
+            <div class="form-container hidden" id="register-form">
+                <h1>Create Account</h1>
+                <input type="text" id="reg-user" placeholder="Username">
+                <input type="text" id="reg-phone" placeholder="Phone Number">
+                <input type="text" id="reg-addr" placeholder="Farm Address">
+                <input type="password" id="reg-pass" placeholder="Password">
+                <button onclick="register()">Sign Up</button>
+                <p>Already have an account? <span class="toggle-link" onclick="toggleAuth('login')">Login</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard hidden" id="dashboard">
+        <nav>
+            <nav>
+
+                <div class="logo"><i class="fas fa-cow"></i> Cattle Manager 🐮</div>
+                <div class="nav-tabs">
+                    <button class="tab-btn active" onclick="switchTab('manage')">
+                        <svg class="nav-icon manage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Manage Cattle
+                    </button>
+
+                    <button class="tab-btn" onclick="switchTab('breed')">
+                        <svg class="nav-icon ai-sparkle" viewBox="0 0 100 100" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M 50 0 C 50 25, 75 50, 100 50 C 75 50, 50 75, 50 100 C 50 75, 25 50, 0 50 C 25 50, 50 25, 50 0 Z" />
+                        </svg>
+                        Breed Recognition
+                    </button>
+
+                    <button class="tab-btn" onclick="switchTab('finance')">
+                        <svg class="nav-icon chart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Financials
+                    </button>
+
+                    <button class="tab-btn" onclick="switchTab('profile')">
+                        <svg class="nav-icon user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Profile
+                    </button>
+
+                    <button class="tab-btn" onclick="switchTab('tasks')">
+                        <svg class="nav-icon task-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        Tasks
+                    </button>
+
+                </div>
+                <div class="user-info">
+                    <span id="display-username">User</span>
+                    <button onclick="logout()" class="logout-btn">Logout</button>
+                </div>
+            </nav>
+        </nav>
+
+        <main>
+            <div id="tab-manage">
+                <section class="card slide-in">
+                    <div class="card-header">
+                        <h3><i class="fas fa-plus-circle"></i> Add / Edit Cattle Record</h3>
+                        <button class="btn-secondary" onclick="clearForm()">Clear Form</button>
+                    </div>
+
+                    <form id="cattle-form" onsubmit="event.preventDefault(); saveRecord();">
+                        <input type="hidden" id="edit-index" value="-1">
+                        <h4>Basic Information</h4>
+                        <div class="grid-row">
+                            <input type="text" id="c-id" placeholder="Unique ID / Tag" required>
+                            <input type="text" id="c-breed" placeholder="Breed" required>
+                            <div class="input-group">
+                                <label>DOB:</label>
+                                <input type="date" id="c-dob" required>
+                            </div>
+                            <select id="c-gender" onchange="toggleOffspring()" required>
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+
+                        <hr>
+
+                        <h4>1. Vaccination Details</h4>
+                        <div class="grid-row">
+                            <input type="text" id="v-name" placeholder="Vaccine Name">
+                            <div class="input-group">
+                                <label>Dose Date:</label>
+                                <input type="date" id="v-date">
+                            </div>
+                        </div>
+
+                        <div id="lactation-section">
+                            <h4>2. Lactation Records</h4>
+                            <div class="grid-row">
+                                <div class="input-group">
+                                    <label>Start Date:</label>
+                                    <input type="date" id="l-start">
+                                </div>
+                                <div class="input-group">
+                                    <label>End Date:</label>
+                                    <input type="date" id="l-end">
+                                </div>
+                                <input type="number" id="l-yield" placeholder="Yield (Litres)">
+                            </div>
+                        </div>
+
+                        <h4>3. Disease History</h4>
+                        <div class="grid-row">
+                            <input type="text" id="d-name" placeholder="Disease Name">
+                            <div class="input-group">
+                                <label>Date Detected:</label>
+                                <input type="date" id="d-date">
+                            </div>
+                            <select id="d-status">
+                                <option value="None" selected>None / Healthy</option>
+                                <option value="Cured">Cured</option>
+                                <option value="Active">Active</option>
+                            </select>
+                        </div>
+
+                        <div id="offspring-section">
+                            <h4>4. Offspring Details</h4>
+                            <div class="grid-row">
+                                <input type="text" id="o-tag" placeholder="Child Tag ID">
+                                <select id="o-gender">
+                                    <option value="Male">Child Male</option>
+                                    <option value="Female">Child Female</option>
+                                </select>
+                                <div class="input-group">
+                                    <label>Child DOB:</label>
+                                    <input type="date" id="o-dob">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="male-warning" class="hidden warning-text">
+                            <i class="fas fa-ban"></i> Lactation and Offspring details are disabled for Male cattle.
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" class="btn-primary">Save Record</button>
+                            <button type="button" class="btn-success" onclick="exportToCSV()">Export to CSV</button>
+                        </div>
+                    </form>
+                </section>
+                <section class="card slide-in" style="animation-delay: 0.1s;">
+                    <h3><i class="fas fa-chart-pie"></i> Farm Analytics</h3>
+                    <div class="charts-wrapper">
+                        <div class="chart-box">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="yieldChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card slide-in" style="animation-delay: 0.2s;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="border: none; margin: 0; padding: 0;"><i class="fas fa-list"></i> Cattle Records</h3>
+
+                        <div style="position: relative; width: 250px;">
+                            <i class="fas fa-search"
+                                style="position: absolute; left: 10px; top: 10px; color: #888;"></i>
+                            <input type="text" id="search-cattle" placeholder="Search ID or Breed..."
+                                onkeyup="renderTable()"
+                                style="width: 100%; padding: 8px 10px 8px 35px; border-radius: 20px; border: 1px solid #ccc; outline: none;">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="cattle-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Breed</th>
+                                    <th>Gender</th>
+                                    <th>Vaccine</th>
+                                    <th>Yield (L)</th>
+                                    <th>Disease</th>
+                                    <th>Offspring</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+            <div id="tab-breed" class="hidden">
+                <section class="card slide-in">
+                    <h3><i class="fas fa-camera"></i> AI Breed Recognition</h3>
+                    <p style="margin-bottom: 20px; color: #666;">Upload a clear image of the cattle to identify its
+                        breed.</p>
+
+                    <div class="upload-area" onclick="document.getElementById('breed-upload').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #ccc;"></i>
+                        <p>Click to Upload Image</p>
+                        <input type="file" id="breed-upload" hidden accept="image/*" onchange="previewImage(event)">
+                    </div>
+
+                    <div id="prediction-result" class="hidden">
+                        <div class="preview-box">
+                            <img id="image-preview" src="" alt="Cattle Preview">
+                        </div>
+                        <div id="loading-bar" class="hidden">
+                            <p>Analyzing features...</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div id="result-text" class="hidden">
+                            <h4>Detected Breed: <span id="breed-name" style="color: var(--primary);"></span></h4>
+                            <p>Confidence: <span id="breed-conf"></span>%</p>
+                        </div>
+                        <button class="btn-primary" onclick="resetBreed()">Analyze Another</button>
+                    </div>
+                </section>
+            </div>
+            <div id="tab-finance" class="hidden">
+                <section class="card slide-in">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-bottom: 1rem; padding-bottom: 5px;">
+                        <h3 style="border: none; margin: 0;"><i class="fas fa-coins"></i> Farm Profit & Loss</h3>
+                        <button class="btn-success" onclick="printFinancialReport()"><i class="fas fa-print"></i> Print
+                            Report</button>
+                    </div>
+
+                    <div class="stats-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 2rem;">
+                        <div class="stat-box">
+                            <h4>Total Revenue</h4>
+                            <p style="color: var(--primary);">₹ <span id="fin-total-rev">0</span></p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>Total Expenses</h4>
+                            <p style="color: #c62828;">₹ <span id="fin-total-exp">0</span></p>
+                        </div>
+                        <div class="stat-box" style="background: #e8f5e9; border-color: var(--primary);">
+                            <h4>Net Profit</h4>
+                            <p id="fin-net-profit" style="font-size: 2.2rem;">₹ 0</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+                    <div class="grid-row">
+                        <div style="flex: 1;">
+                            <h4><i class="fas fa-plus-circle"></i> Add Expense</h4>
+                            <form onsubmit="event.preventDefault(); addExpense();">
+                                <div class="input-group">
+                                    <label>Expense Type:</label>
+                                    <select id="exp-type">
+                                        <option value="Feed">Feed / Fodder</option>
+                                        <option value="Medical">Vet / Medicine</option>
+                                        <option value="Labor">Labor Cost</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                </div>
+                                <div class="grid-row">
+                                    <input type="text" id="exp-desc" placeholder="Description (e.g. 5 Bags Grain)">
+                                    <input type="number" id="exp-amount" placeholder="Amount (₹)" required>
+                                </div>
+                                <button type="submit" class="btn-secondary" style="width:100%;">Add Expense</button>
+                            </form>
+
+                            <div style="margin-top: 20px;">
+                                <label><strong>Current Milk Price (₹/L):</strong></label>
+                                <input type="number" id="milk-price" value="40" onchange="calculateFinancials()"
+                                    style="width: 100px; font-weight: bold; color: var(--primary); padding: 5px;">
+                            </div>
+                        </div>
+
+                        <div style="flex: 1; border-left: 1px solid #eee; padding-left: 20px;">
+                            <h4>Recent Expenses</h4>
+                            <div style="max-height: 450px; overflow-y: auto; border-bottom: 2px solid #eee;">
+                                <table style="font-size: 0.9rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Desc</th>
+                                            <th>Cost</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="expense-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div id="tab-profile" class="hidden">
+                <section class="card slide-in" style="max-width: 600px; margin: 0 auto;">
+                    <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+
+                    <form onsubmit="event.preventDefault(); updateProfile();">
+                        <div class="grid-row">
+                            <div class="input-group">
+                                <label>Username (Cannot be changed):</label>
+                                <input type="text" id="p-user" disabled
+                                    style="background: #e0e0e0; cursor: not-allowed;">
+                            </div>
+                            <div class="input-group">
+                                <label>Phone Number:</label>
+                                <input type="text" id="p-phone">
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="margin-bottom: 1rem;">
+                            <label>Farm Address:</label>
+                            <input type="text" id="p-addr">
+                        </div>
+
+                        <div class="input-group" style="margin-bottom: 1rem;">
+                            <label>New Password:</label>
+                            <input type="password" id="p-pass" placeholder="Leave blank to keep current password">
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%;">Update Profile</button>
+                    </form>
+                </section>
+            </div>
+
+            <div id="tab-tasks" class="hidden">
+                <section class="card slide-in">
+                    <h3><i class="fas fa-clipboard-list"></i> Farm Task Manager</h3>
+
+                    <form onsubmit="event.preventDefault(); addTask();"
+                        style="margin-bottom: 2rem; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                        <div class="grid-row" style="align-items: end;">
+                            <div class="input-group">
+                                <label>Task Description:</label>
+                                <input type="text" id="t-desc" placeholder="e.g., Fix Fence in area 51" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Assign To (Worker Name):</label>
+                                <input type="text" id="t-worker" placeholder="e.g., Ramesh" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Due Date:</label>
+                                <input type="date" id="t-date" required>
+                            </div>
+                            <button type="submit" class="btn-primary" style="margin-bottom: 2px;">Add Task</button>
+                        </div>
+                    </form>
+
+                    <div class="table-container">
+                        <table id="task-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px; text-align: center;">Done</th>
+                                    <th>Task Description</th>
+                                    <th>Assigned To</th>
+                                    <th>Due Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <div class="dashboard hidden" id="admin-dashboard">
+        <nav style="background-color: #333;">
+            <div class="logo"><i class="fas fa-user-shield"></i> CattleManager Admin</div>
+            <div class="user-info">
+                <span>Administrator</span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </nav>
+
+        <main>
+            <div id="admin-home">
+                <div class="grid-row">
+                    <div class="card" style="text-align: center;">
+                        <h3>Total Users</h3>
+                        <h1 id="admin-total-users" style="font-size: 3rem; color: var(--primary);">0</h1>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3>Total Cattle</h3>
+                        <h1 id="admin-total-cattle" style="font-size: 3rem; color: var(--secondary);">0</h1>
+                    </div>
+                </div>
+
+                <section class="card">
+                    <h3><i class="fas fa-users-cog"></i> User Management</h3>
+                    <div class="table-container">
+                        <table id="admin-users-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Phone</th>
+                                    <th>Cattle Count</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="admin-user-view" class="hidden">
+                <button class="btn-secondary" onclick="closeUserDetail()" style="margin-bottom: 20px;">
+                    <i class="fas fa-arrow-left"></i> Back to User List
+                </button>
+
+                <section class="card" style="border-left: 5px solid var(--secondary);">
+                    <h3><i class="fas fa-id-card"></i> Profile: <span id="detail-username"></span></h3>
+                    <div class="grid-row">
+                        <p><strong>Phone:</strong> <span id="detail-phone"></span></p>
+                        <p><strong>Address:</strong> <span id="detail-addr"></span></p>
+                        <p><strong>Password:</strong> <span id="detail-pass"></span></p>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h3><i class="fas fa-cow"></i> Cattle Records</h3>
+                    <div class="table-container">
+                        <table id="detail-cattle-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Breed</th>
+                                    <th>Gender</th>
+                                    <th>Yield (L)</th>
+                                    <th>Vaccine Due</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-cattle-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
