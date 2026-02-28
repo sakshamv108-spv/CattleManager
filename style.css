@@ -62,6 +62,20 @@ body {
     }
 }
 
+/* ---------------------- HAMBURGER MENU ---------------------- */
+.hamburger {
+    display: none; 
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+.hamburger:hover {
+    transform: scale(1.1);
+}
+
 /* ----------------------UTILITIES ---------------------- */
 .hidden {
     display: none !important;
@@ -779,5 +793,109 @@ tr:hover {
     /* 6. Fixed Modals */
     .modal-content {
         width: 90%;
+    }
+}
+
+/* ---------------------- For mobile responsiveness ---------------------- */
+@media (max-width: 768px) {
+
+    /* 1. Navigation Bar Layout */
+    nav {
+        flex-wrap: wrap;
+        /* Allows items to wrap to the next line */
+        height: auto;
+        padding: 15px 20px;
+        justify-content: space-between;
+        /* Pushes Logo left, Hamburger right */
+    }
+
+    nav .logo {
+        flex: unset;
+    }
+
+    /* Show the hamburger icon on mobile */
+    .hamburger {
+        display: block;
+        order: 2;
+    }
+
+    /* 2. Hide Tabs and User Info by default on mobile */
+    .nav-tabs,
+    .user-info {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        margin-top: 15px;
+    }
+
+    /* 3. The class JS will add to show the menu */
+    .nav-tabs.show-menu,
+    .user-info.show-menu {
+        display: flex;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* 4. Style the dropdown tabs */
+    .tab-btn {
+        width: 100%;
+        text-align: left;
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 5px;
+    }
+
+    .tab-btn.active {
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: none !important;
+        border-left: 4px solid var(--secondary) !important;
+    }
+
+    .user-info {
+        justify-content: space-between;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    /* Fix General Spacing */
+    main {
+        padding: 1rem 0.5rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .form-container {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    /* Fix Financials Tab Layout */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    #tab-finance .grid-row {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #tab-finance .grid-row>div {
+        border-left: none !important;
+        padding-left: 0 !important;
+        width: 100%;
+    }
+
+    /* Fix Search Bar */
+    .card>div[style*="display: flex"] {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .card>div[style*="display: flex"]>div {
+        width: 100% !important;
     }
 }
