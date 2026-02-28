@@ -501,9 +501,8 @@ tr:hover {
     color: var(--primary);
 }
 
-/* ---------------------- NAV ICONS & ANIMATIONS ---------------------- */
+/* ---------------------- NAV ICONS ANIMATIONS ---------------------- */
 
-/* Base style for all tab icons */
 .nav-icon {
     width: 16px;
     height: 16px;
@@ -513,7 +512,7 @@ tr:hover {
     transition: filter 0.3s ease;
 }
 
-/* 1. Manage Cattle (Bouncing Clipboard) */
+/* 1. Manage Cattle */
 .manage-icon {
     stroke: currentColor;
 }
@@ -536,7 +535,7 @@ tr:hover {
     }
 }
 
-/* 2. Breed Recognition (Spinning Sparkle) */
+/* 2. Breed Recognition */
 .ai-sparkle {
     fill: currentColor;
 }
@@ -561,7 +560,7 @@ tr:hover {
     }
 }
 
-/* 3. Financials (Flipping Coin/Dollar) */
+/* 3. Financials */
 .chart-icon {
     stroke: currentColor;
 }
@@ -586,7 +585,7 @@ tr:hover {
     }
 }
 
-/* 4. Profile (Nodding User) */
+/* 4. Profile */
 .user-icon {
     stroke: currentColor;
 }
@@ -622,18 +621,16 @@ tr:hover {
 
 @media print {
 
-    /* Hide everything on the screen */
     body * {
         visibility: hidden;
     }
 
-    /* Make ONLY the receipt visible */
     #print-receipt,
     #print-receipt * {
         visibility: visible;
     }
 
-    /* Position the receipt perfectly on the paper */
+    /* Position the receipt on the paper */
     #print-receipt {
         position: absolute;
         left: 0;
@@ -697,7 +694,6 @@ tr:hover {
     }
 }
 
-/* Completed Task Styling */
 .task-completed td {
     text-decoration: line-through;
     color: #888;
@@ -707,4 +703,81 @@ tr:hover {
 .task-completed strong {
     color: #888;
     font-weight: normal;
+}
+
+/* ---------------------- For mobile responsiveness ---------------------- */
+@media (max-width: 768px) {
+    /* 1. Fixed the Navigation Bar  */
+    nav {
+        flex-direction: column;
+        height: auto;
+        padding: 15px 10px;
+        gap: 15px;
+    }
+
+    nav .logo {
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Tabs wrapped */
+    .nav-tabs {
+        flex-wrap: wrap; 
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .user-info {
+        justify-content: center;
+        width: 100%;
+    }
+
+    /* 2. General Spacing */
+    main {
+        padding: 1rem 0.5rem; 
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    /* 3. Login/Signup Cards */
+    .form-container {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    /* 4. Fixed Financials Tab */
+    .stats-grid {
+        grid-template-columns: 1fr !important; 
+        gap: 10px;
+    }
+
+    #tab-finance .grid-row {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Removed the vertical dividing line on mobile expenses */
+    #tab-finance .grid-row > div {
+        border-left: none !important;
+        padding-left: 0 !important;
+        width: 100%;
+    }
+
+    /* 5. Fixed Search Bar and Print Button Headers */
+    .card > div[style*="display: flex"] {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .card > div[style*="display: flex"] > div {
+        width: 100% !important; 
+    }
+
+    /* 6. Fixed Modals */
+    .modal-content {
+        width: 90%;
+    }
 }
