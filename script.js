@@ -8,6 +8,7 @@ const TASKS_KEY = 'cattle_tasks';
 1. getStoredUsers()
 2. register()
 3. login()
+3.1 toggleMenu()
 4. logout()
 5. toggleAuth(view)
 6. switchTab(tabName)
@@ -94,6 +95,14 @@ function login() {
     }
 }
 
+function toggleMenu() {
+    const navTabs = document.querySelector('.nav-tabs');
+    const userInfo = document.querySelector('.user-info');
+
+    // Toggles the 'show-menu' class on and off
+    navTabs.classList.toggle('show-menu');
+    userInfo.classList.toggle('show-menu');
+    
 function logout() {
     localStorage.removeItem(SESSION_KEY);
     location.reload();
@@ -470,6 +479,10 @@ function switchTab(tabName) {
         buttons[4].classList.add('active');
         renderTasks(); // Load data when tab opens
     }
+
+    // Auto-close mobile menu after a tab is clicked
+    document.querySelector('.nav-tabs').classList.remove('show-menu');
+    document.querySelector('.user-info').classList.remove('show-menu');
 }
 
 // ---------------------------------- BREED RECOGNITION ----------------------------------
@@ -1035,3 +1048,4 @@ function renderTasks() {
     });
 
 }
+
