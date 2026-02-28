@@ -721,83 +721,6 @@ tr:hover {
 
 /* ---------------------- For mobile responsiveness ---------------------- */
 @media (max-width: 768px) {
-    /* 1. Fixed the Navigation Bar  */
-    nav {
-        flex-direction: column;
-        height: auto;
-        padding: 15px 10px;
-        gap: 15px;
-    }
-
-    nav .logo {
-        justify-content: center;
-        text-align: center;
-    }
-
-    /* Tabs wrapped */
-    .nav-tabs {
-        flex-wrap: wrap; 
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .user-info {
-        justify-content: center;
-        width: 100%;
-    }
-
-    /* 2. General Spacing */
-    main {
-        padding: 1rem 0.5rem; 
-    }
-
-    .card {
-        padding: 1rem;
-    }
-
-    /* 3. Login/Signup Cards */
-    .form-container {
-        width: 90%;
-        max-width: 350px;
-    }
-
-    /* 4. Fixed Financials Tab */
-    .stats-grid {
-        grid-template-columns: 1fr !important; 
-        gap: 10px;
-    }
-
-    #tab-finance .grid-row {
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Removed the vertical dividing line on mobile expenses */
-    #tab-finance .grid-row > div {
-        border-left: none !important;
-        padding-left: 0 !important;
-        width: 100%;
-    }
-
-    /* 5. Fixed Search Bar and Print Button Headers */
-    .card > div[style*="display: flex"] {
-        flex-direction: column;
-        align-items: flex-start !important;
-        gap: 15px;
-    }
-
-    .card > div[style*="display: flex"] > div {
-        width: 100% !important; 
-    }
-
-    /* 6. Fixed Modals */
-    .modal-content {
-        width: 90%;
-    }
-}
-
-/* ---------------------- For mobile responsiveness ---------------------- */
-@media (max-width: 768px) {
 
     /* 1. Navigation Bar Layout */
     nav {
@@ -899,3 +822,4 @@ tr:hover {
         width: 100% !important;
     }
 }
+
