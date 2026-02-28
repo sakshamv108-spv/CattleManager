@@ -8,7 +8,6 @@ const TASKS_KEY = 'cattle_tasks';
 1. getStoredUsers()
 2. register()
 3. login()
-3.1 toggleMenu()
 4. logout()
 5. toggleAuth(view)
 6. switchTab(tabName)
@@ -103,7 +102,7 @@ function toggleMenu() {
     navTabs.classList.toggle('show-menu');
     userInfo.classList.toggle('show-menu');
 }
-    
+
 function logout() {
     localStorage.removeItem(SESSION_KEY);
     location.reload();
@@ -908,7 +907,7 @@ function printFinancialReport() {
             <tbody>
     `;
 
-    // Adding Expense Rows
+    // Add Expense Rows
     if (userExpenses.length === 0) {
         receiptHTML += `<tr><td colspan="4" style="text-align:center;">No expenses recorded yet.</td></tr>`;
     } else {
@@ -924,7 +923,7 @@ function printFinancialReport() {
         });
     }
 
-    // For adding Totals
+    // Add Totals
     receiptHTML += `
             </tbody>
         </table>
@@ -940,7 +939,7 @@ function printFinancialReport() {
         </div>
     `;
 
-    // Injection into the DOM
+    // Inject into the DOM
     let printDiv = document.getElementById('print-receipt');
     if (!printDiv) {
         printDiv = document.createElement('div');
@@ -949,7 +948,7 @@ function printFinancialReport() {
     }
     printDiv.innerHTML = receiptHTML;
 
-    // Trigger the Browser to Print Dialog
+    // Trigger the Browser Print Dialog
     window.print();
 }
 
@@ -990,7 +989,7 @@ function toggleTaskStatus(taskId) {
     const taskIndex = tasks.findIndex(t => t.id === taskId);
 
     if (taskIndex > -1) {
-        // Flipping between Pending and Completed
+        // Flip between Pending and Completed
         tasks[taskIndex].status = tasks[taskIndex].status === 'Pending' ? 'Completed' : 'Pending';
         localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
         renderTasks(); // Re-render table
@@ -1011,7 +1010,7 @@ function renderTasks() {
     const currentUser = localStorage.getItem(SESSION_KEY);
     const allTasks = getTasks();
 
-    // to get only the logged-in user's tasks
+    // Get only the logged-in user's tasks
     const userTasks = allTasks.filter(t => t.owner === currentUser);
 
     const tbody = document.getElementById('task-table-body');
@@ -1022,14 +1021,14 @@ function renderTasks() {
         return;
     }
 
-    // Task sorting
+    // Sort tasks: Pending at the top, Completed at the bottom
     userTasks.sort((a, b) => (a.status === 'Completed') - (b.status === 'Completed'));
 
     userTasks.forEach(t => {
         const tr = document.createElement('tr');
         const isCompleted = t.status === 'Completed';
 
-        // to add gray styling if completed
+        // Add gray styling if completed
         if (isCompleted) {
             tr.classList.add('task-completed');
         }
@@ -1047,7 +1046,4 @@ function renderTasks() {
         `;
         tbody.appendChild(tr);
     });
-
 }
-
-
