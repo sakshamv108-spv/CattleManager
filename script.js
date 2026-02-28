@@ -102,6 +102,7 @@ function toggleMenu() {
     // Toggles the 'show-menu' class on and off
     navTabs.classList.toggle('show-menu');
     userInfo.classList.toggle('show-menu');
+}
     
 function logout() {
     localStorage.removeItem(SESSION_KEY);
@@ -1048,4 +1049,5 @@ function renderTasks() {
     });
 
 }
+
 
