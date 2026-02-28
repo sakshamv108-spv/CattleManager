@@ -720,7 +720,7 @@ tr:hover {
 }
 
 /* ---------------------- For mobile responsiveness ---------------------- */
-@media (max-width: 768px) {
+@media (max-width: 1050px) {
 
     /* 1. Navigation Bar Layout */
     nav {
@@ -822,4 +822,5 @@ tr:hover {
         width: 100% !important;
     }
 }
+
 
