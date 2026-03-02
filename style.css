@@ -64,7 +64,7 @@ body {
 
 /* ---------------------- HAMBURGER MENU ---------------------- */
 .hamburger {
-    display: none; 
+    display: none;
     background: transparent;
     border: none;
     color: white;
@@ -72,6 +72,7 @@ body {
     cursor: pointer;
     transition: transform 0.3s;
 }
+
 .hamburger:hover {
     transform: scale(1.1);
 }
@@ -515,8 +516,9 @@ tr:hover {
     color: var(--primary);
 }
 
-/* ---------------------- NAV ICONS ANIMATIONS ---------------------- */
+/* ---------------------- NAV ICONS & ANIMATIONS ---------------------- */
 
+/* Base style for all tab icons */
 .nav-icon {
     width: 16px;
     height: 16px;
@@ -526,7 +528,7 @@ tr:hover {
     transition: filter 0.3s ease;
 }
 
-/* 1. Manage Cattle */
+/* 1. Manage Cattle (Bouncing Clipboard) */
 .manage-icon {
     stroke: currentColor;
 }
@@ -549,7 +551,7 @@ tr:hover {
     }
 }
 
-/* 2. Breed Recognition */
+/* 2. Breed Recognition (Spinning Sparkle) */
 .ai-sparkle {
     fill: currentColor;
 }
@@ -574,7 +576,7 @@ tr:hover {
     }
 }
 
-/* 3. Financials */
+/* 3. Financials (Flipping Coin/Dollar) */
 .chart-icon {
     stroke: currentColor;
 }
@@ -599,7 +601,7 @@ tr:hover {
     }
 }
 
-/* 4. Profile */
+/* 4. Profile (Nodding User) */
 .user-icon {
     stroke: currentColor;
 }
@@ -635,16 +637,18 @@ tr:hover {
 
 @media print {
 
+    /* Hide everything on the screen */
     body * {
         visibility: hidden;
     }
 
+    /* Make ONLY the receipt visible */
     #print-receipt,
     #print-receipt * {
         visibility: visible;
     }
 
-    /* Position the receipt on the paper */
+    /* Position the receipt perfectly on the paper */
     #print-receipt {
         position: absolute;
         left: 0;
@@ -708,6 +712,7 @@ tr:hover {
     }
 }
 
+/* Completed Task Styling */
 .task-completed td {
     text-decoration: line-through;
     color: #888;
@@ -719,17 +724,16 @@ tr:hover {
     font-weight: normal;
 }
 
-/* ---------------------- For mobile responsiveness ---------------------- */
-@media (max-width: 1050px) {
+
+/* ---------------------- MOBILE RESPONSIVENESS ---------------------- */
+@media (max-width: 768px) {
 
     /* 1. Navigation Bar Layout */
     nav {
         flex-wrap: wrap;
-        /* Allows items to wrap to the next line */
         height: auto;
         padding: 15px 20px;
         justify-content: space-between;
-        /* Pushes Logo left, Hamburger right */
     }
 
     nav .logo {
@@ -823,4 +827,109 @@ tr:hover {
     }
 }
 
+/* 6. AI Vet Icon Animation (Heartbeat) */
+.health-icon {
+    stroke: currentColor;
+}
 
+.tab-btn:hover .health-icon,
+.tab-btn.active .health-icon {
+    animation: heartbeat 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
+}
+
+@keyframes heartbeat {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    15% {
+        transform: scale(1.2);
+    }
+
+    30% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.2);
+    }
+
+    60% {
+        transform: scale(1);
+    }
+}
+
+/* Chatbot Interface Styles */
+.chat-container {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 450px;
+    /* Fixed height for the chat window */
+    background: #fafafa;
+}
+
+.chat-box {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chat-msg {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.user-msg {
+    align-self: flex-end;
+    background: var(--primary);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.ai-msg {
+    align-self: flex-start;
+    background: white;
+    color: var(--text);
+    border: 1px solid #eee;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input-area input {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-right: 10px;
+    background: #f9f9f9;
+}
+
+.typing-indicator {
+    align-self: flex-start;
+    color: #888;
+    font-style: italic;
+    font-size: 0.85rem;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
