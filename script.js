@@ -44,6 +44,10 @@ const TASKS_KEY = 'cattle_tasks';
 37. deleteUser(index)
 38. viewUserDetail(index)
 39. closeUserDetail()
+40. askAIVet()
+41. generateFakeAIResponse(query)
+42. autoFillBreed(event)
+43. toggleMilkPrice()
 */
 
 // ----------------------- User inputs -----------------------
@@ -82,7 +86,7 @@ function login() {
         return;
     }
 
-    // ---------------------------for Regular User Login---------------------------for 
+    // ---------------------------for Regular User Login---------------------------
     const users = getStoredUsers();
     const validUser = users.find(u => u.username === user && u.password === pass);
 
@@ -95,12 +99,13 @@ function login() {
 }
 
 function toggleMenu() {
-    const navTabs = document.querySelector('.nav-tabs');
-    const userInfo = document.querySelector('.user-info');
+    // Use querySelectorAll to find menus in BOTH the user and admin dashboards
+    const navTabs = document.querySelectorAll('.nav-tabs');
+    const userInfo = document.querySelectorAll('.user-info');
 
-    // Toggles the 'show-menu' class on and off
-    navTabs.classList.toggle('show-menu');
-    userInfo.classList.toggle('show-menu');
+    // Toggle the 'show-menu' class for all found elements
+    navTabs.forEach(tab => tab.classList.toggle('show-menu'));
+    userInfo.forEach(info => info.classList.toggle('show-menu'));
 }
 
 function logout() {
@@ -158,6 +163,8 @@ function toggleOffspring() {
         document.getElementById('l-start').value = '';
         document.getElementById('l-end').value = '';
         document.getElementById('l-yield').value = '';
+        document.getElementById('l-sale-status').value = 'Not for Sale';
+        document.getElementById('l-price').value = '';
     } else {
         offSection.classList.remove('hidden');
         lacSection.classList.remove('hidden'); // NEW: Show Lactation
@@ -191,7 +198,9 @@ function saveRecord() {
         lactation: {
             start: document.getElementById('l-start').value,
             end: document.getElementById('l-end').value,
-            yield: document.getElementById('l-yield').value
+            yield: document.getElementById('l-yield').value,
+            saleStatus: document.getElementById('l-sale-status').value, // NEW
+            price: document.getElementById('l-price').value             // NEW
         },
         disease: {
             name: document.getElementById('d-name').value,
@@ -252,6 +261,10 @@ function renderTable() {
         let offDisplay = cow.gender === 'Male' ? 'N/A' : (cow.offspring && cow.offspring.tag ? `${cow.offspring.tag} (${cow.offspring.gender})` : 'None');
         let yieldDisplay = cow.gender === 'Male' ? 'N/A' : (cow.lactation.yield || '0');
 
+        // NEW: Price Display Logic
+        let priceDisplay = cow.gender === 'Male' ? 'N/A' : 
+            (cow.lactation.saleStatus === 'Not for Sale' ? '<span style="color:#888;">Not for Sale</span>' : `₹ ${cow.lactation.price || '0'}`);
+
         // Clean display for Disease
         let diseaseDisplay = cow.disease.status === 'None'
             ? '<span style="color:var(--primary); font-weight:bold;">Healthy</span>'
@@ -263,7 +276,7 @@ function renderTable() {
             <td>${cow.gender}</td>
             <td>${cow.vaccine.name || '-'} <br><small>${cow.vaccine.date}</small></td>
             <td>${yieldDisplay}</td>
-            <td>${diseaseDisplay}</td>
+            <td>${priceDisplay}</td> <td>${diseaseDisplay}</td>
             <td>${offDisplay}</td>
             <td>
                 <i class="fas fa-edit action-icon" onclick="editRecord(${originalIndex})" title="Edit"></i>
@@ -295,6 +308,10 @@ function editRecord(index) {
     document.getElementById('l-start').value = cow.lactation.start;
     document.getElementById('l-end').value = cow.lactation.end;
     document.getElementById('l-yield').value = cow.lactation.yield;
+
+    document.getElementById('l-sale-status').value = cow.lactation.saleStatus || 'Active';
+    document.getElementById('l-price').value = cow.lactation.price || '40';
+    toggleMilkPrice(); // Trigger UI update based on sale status
 
     document.getElementById('d-name').value = cow.disease.name;
     document.getElementById('d-date').value = cow.disease.date;
@@ -339,11 +356,14 @@ function exportToCSV() {
     if (data.length === 0) return alert("No data to export!");
 
     let csvContent = "data:text/csv;charset=utf-8,";
-    // Headers
-    csvContent += "ID,Breed,DOB,Gender,Vaccine Name,Vaccine Date,Lactation Yield,Disease Name,Disease Status,Offspring Tag\n";
+    // Headers updated with Price/L
+    csvContent += "ID,Breed,DOB,Gender,Vaccine Name,Vaccine Date,Lactation Yield,Price/L,Disease Name,Disease Status,Offspring Tag\n";
 
     // Rows
     data.forEach(row => {
+        // Handle Price logic for CSV (no HTML tags)
+        let priceCSV = row.gender === 'Male' ? 'N/A' : (row.lactation.saleStatus === 'Not for Sale' ? 'Not for Sale' : (row.lactation.price || '0'));
+        
         let rowData = [
             row.id,
             row.breed,
@@ -352,6 +372,7 @@ function exportToCSV() {
             row.vaccine.name,
             row.vaccine.date,
             row.lactation.yield,
+            priceCSV, // NEW COLUMN DATA
             row.disease.name,
             row.disease.status,
             row.gender === 'Male' ? 'N/A' : row.offspring.tag
@@ -367,6 +388,8 @@ function exportToCSV() {
     link.click();
     document.body.removeChild(link);
 }
+
+
 // ------------------------------------ CHARTS LOGIC ------------------------------------
 let genderChartInstance = null;
 let yieldChartInstance = null;
@@ -453,7 +476,8 @@ function switchTab(tabName) {
     document.getElementById('tab-breed').classList.add('hidden');
     document.getElementById('tab-finance').classList.add('hidden');
     document.getElementById('tab-profile').classList.add('hidden');
-    document.getElementById('tab-tasks').classList.add('hidden'); // NEW
+    document.getElementById('tab-tasks').classList.add('hidden');
+    document.getElementById('tab-health').classList.add('hidden'); // NEW
 
     // Reset Buttons
     const buttons = document.querySelectorAll('.tab-btn');
@@ -474,15 +498,18 @@ function switchTab(tabName) {
         document.getElementById('tab-profile').classList.remove('hidden');
         buttons[3].classList.add('active');
         loadProfileData();
-    } else if (tabName === 'tasks') { // NEW CASE: TASKS
+    } else if (tabName === 'tasks') {
         document.getElementById('tab-tasks').classList.remove('hidden');
         buttons[4].classList.add('active');
-        renderTasks(); // Load data when tab opens
+        renderTasks();
+    } else if (tabName === 'health') { // NEW CASE: AI VET
+        document.getElementById('tab-health').classList.remove('hidden');
+        buttons[5].classList.add('active');
     }
 
     // Auto-close mobile menu after a tab is clicked
     document.querySelector('.nav-tabs').classList.remove('show-menu');
-    document.querySelector('.user-info').classList.remove('show-menu');
+    document.querySelectorAll('.user-info').forEach(info => info.classList.remove('show-menu'));
 }
 
 // ---------------------------------- BREED RECOGNITION ----------------------------------
@@ -662,22 +689,21 @@ function closeQR() {
     document.getElementById('qr-modal').classList.add('hidden');
 }
 
-//  ------------------------------- FINANCIALS -------------------------------
-function calculateRevenue() {
-    const data = getCattleData();
-    const price = document.getElementById('milk-price').value || 0;
+function printQR() {
+    const qrImage = document.querySelector('#qr-image-container img').src;
+    const caption = document.getElementById('qr-caption').innerText;
 
-    let totalYield = 0;
-    data.forEach(cow => {
-        if (cow.lactation.yield) {
-            totalYield += parseFloat(cow.lactation.yield);
-        }
-    });
-
-    const totalRevenue = totalYield * price;
-
-    document.getElementById('fin-total-yield').innerText = totalYield.toLocaleString();
-    document.getElementById('fin-total-rev').innerText = totalRevenue.toLocaleString();
+    // Open a tiny temporary window to print just the label perfectly
+    const printWindow = window.open('', '_blank', 'width=400,height=400');
+    printWindow.document.write(`
+        <html><head><title>Print QR Label</title></head>
+        <body style="text-align:center; font-family:sans-serif; margin-top:50px;">
+            <img src="${qrImage}" style="width:200px; height:200px; margin-bottom:10px;">
+            <h2>${caption}</h2>
+            <script>window.onload = function() { window.print(); window.close(); }<\/script>
+        </body></html>
+    `);
+    printWindow.document.close();
 }
 
 // --------------------------------- PROFILE  ---------------------------------
@@ -808,15 +834,24 @@ function deleteExpense(id) {
 function calculateFinancials() {
     const currentUser = localStorage.getItem(SESSION_KEY);
 
-    // 1. Calculate Revenue (Milk Yield * Price)
-    const cattleData = getCattleData(); // Uses existing filter for current user
-    const price = parseFloat(document.getElementById('milk-price').value) || 0;
-
+    // 1. Calculate Revenue (Cow-by-Cow Basis)
+    const cattleData = getCattleData();
     let totalYield = 0;
+    let totalRevenue = 0;
+
     cattleData.forEach(cow => {
-        if (cow.lactation.yield) totalYield += parseFloat(cow.lactation.yield);
+        if (cow.lactation && cow.lactation.yield) {
+            const cowYield = parseFloat(cow.lactation.yield) || 0;
+            totalYield += cowYield;
+
+            // Only add to revenue if milk is for sale
+            const saleStatus = cow.lactation.saleStatus || 'Active';
+            if (saleStatus !== 'Not for Sale') {
+                const cowPrice = parseFloat(cow.lactation.price) || 0;
+                totalRevenue += (cowYield * cowPrice);
+            }
+        }
     });
-    const totalRevenue = totalYield * price;
 
     // 2. Calculate Expenses
     const allExpenses = getExpenses();
@@ -862,14 +897,23 @@ function printFinancialReport() {
     const cattleData = getCattleData();
     const allExpenses = getExpenses();
     const userExpenses = allExpenses.filter(e => e.owner === currentUser);
-    const price = parseFloat(document.getElementById('milk-price').value) || 0;
 
-    // Calculate Math
+    // Calculate Math (Cow-by-Cow)
+
+    // Calculate Math (Cow-by-Cow)
     let totalYield = 0;
+    let totalRevenue = 0;
+
     cattleData.forEach(cow => {
-        if (cow.lactation && cow.lactation.yield) totalYield += parseFloat(cow.lactation.yield);
+        if (cow.lactation && cow.lactation.yield) {
+            const cowYield = parseFloat(cow.lactation.yield) || 0;
+            totalYield += cowYield;
+
+            if ((cow.lactation.saleStatus || 'Active') !== 'Not for Sale') {
+                totalRevenue += (cowYield * (parseFloat(cow.lactation.price) || 0));
+            }
+        }
     });
-    const totalRevenue = totalYield * price;
 
     let totalExpense = 0;
     userExpenses.forEach(e => totalExpense += e.amount);
@@ -889,9 +933,8 @@ function printFinancialReport() {
         
         <h3>Revenue Summary</h3>
         <table class="receipt-table">
-            <tr><td>Total Milk Yield</td><td style="text-align:right;">${totalYield.toLocaleString()} L</td></tr>
-            <tr><td>Milk Price</td><td style="text-align:right;">₹ ${price} / L</td></tr>
-            <tr><td><strong>Gross Revenue</strong></td><td style="text-align:right; color: #2e7d32;"><strong>₹ ${totalRevenue.toLocaleString()}</strong></td></tr>
+            <tr><td>Total Milk Yield Generated</td><td style="text-align:right;">${totalYield.toLocaleString()} L</td></tr>
+            <tr><td><strong>Gross Milk Revenue</strong></td><td style="text-align:right; color: #2e7d32;"><strong>₹ ${totalRevenue.toLocaleString()}</strong></td></tr>
         </table>
 
         <h3>Expense Breakdown</h3>
@@ -1046,4 +1089,99 @@ function renderTasks() {
         `;
         tbody.appendChild(tr);
     });
+}
+
+// -------------------- AI VET ASSISTANT LOGIC ---------------------
+
+function askAIVet() {
+    const inputField = document.getElementById('ai-prompt');
+    const userText = inputField.value.trim();
+    if (!userText) return;
+
+    const chatBox = document.getElementById('chat-box');
+
+    // 1. Display User Message
+    const userMsgDiv = document.createElement('div');
+    userMsgDiv.className = 'chat-msg user-msg';
+    userMsgDiv.innerText = userText;
+    chatBox.appendChild(userMsgDiv);
+
+    // Clear input and scroll to bottom
+    inputField.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 2. Show "Typing..." Indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'typing-indicator';
+    typingIndicator.id = 'ai-typing';
+    typingIndicator.innerText = "AI Vet is analyzing...";
+    chatBox.appendChild(typingIndicator);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 3. Simulate AI Processing Delay (1.5 seconds)
+    setTimeout(() => {
+        // Remove typing indicator
+        document.getElementById('ai-typing').remove();
+
+        // to generate Fake Response
+        let aiResponse = generateFakeAIResponse(userText.toLowerCase());
+
+        // Display AI Message
+        const aiMsgDiv = document.createElement('div');
+        aiMsgDiv.className = 'chat-msg ai-msg';
+        aiMsgDiv.innerHTML = `<strong>AI Vet:</strong> ${aiResponse}`;
+        chatBox.appendChild(aiMsgDiv);
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    }, 1500);
+}
+
+function generateFakeAIResponse(query) {
+    if (query.includes('blister') || query.includes('mouth') || query.includes('hoof')) {
+        return "Those symptoms sound like **Foot-and-Mouth Disease (FMD)**. It is highly contagious. <br><br><strong>Action:</strong> Isolate the animal immediately and contact your local veterinary authority. Ensure standard FMD vaccination protocols are up to date.";
+    }
+    else if (query.includes('vaccin') || query.includes('schedule')) {
+        return "Standard vaccination schedules for adult cattle usually include:<br>1. **FMD (Foot-and-Mouth)**: Twice a year.<br>2. **HS (Hemorrhagic Septicemia)**: Annually before monsoons.<br>3. **BQ (Black Quarter)**: Annually.<br>Check the 'Manage Cattle' tab to see which cows are due!";
+    }
+    else if (query.includes('fever') || query.includes('milk') || query.includes('drop')) {
+        return "A sudden drop in milk yield accompanied by a fever could be indicative of **Mastitis** or **Tick Fever**. <br><br>Check the udder for swelling or hardness. If it is Mastitis, intramammary antibiotics are usually prescribed by a vet.";
+    }
+    else {
+        return "I am currently running in offline simulation mode. Based on my mock database, I recommend monitoring the cattle's temperature and isolating them if symptoms worsen. Please consult a physical vet for an accurate diagnosis.";
+    }
+}
+
+function autoFillBreed(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const breedInput = document.getElementById('c-breed');
+    breedInput.value = "AI Scanning...";
+    breedInput.style.color = "var(--primary)";
+    breedInput.style.fontWeight = "bold";
+
+    // Simulate AI delay
+    setTimeout(() => {
+        const randomBreed = BREEDS_DB[Math.floor(Math.random() * BREEDS_DB.length)];
+        breedInput.value = randomBreed;
+        breedInput.style.color = "var(--text)";
+        breedInput.style.fontWeight = "normal";
+        alert(`AI Vet Analysis Complete! Detected Breed: ${randomBreed}`);
+    }, 1500);
+}
+
+function toggleMilkPrice() {
+    const status = document.getElementById('l-sale-status').value;
+    const priceInput = document.getElementById('l-price');
+
+    if (status === 'Not for Sale') {
+        priceInput.disabled = true;
+        priceInput.style.backgroundColor = '#e0e0e0';
+        priceInput.title = "Pricing disabled because milk is not for sale.";
+    } else {
+        priceInput.disabled = false;
+        priceInput.style.backgroundColor = '#fff';
+        priceInput.title = "";
+    }
 }
