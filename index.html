@@ -19,7 +19,7 @@
             <h3>Cattle Identity Tag</h3>
             <div id="qr-image-container"></div>
             <p id="qr-caption" style="margin-top: 10px; font-weight: bold;"></p>
-            <button class="btn-primary" onclick="window.print()">Print Label</button>
+            <button class="btn-primary" onclick="printQR()">Print Label</button>
         </div>
     </div>
     <div>
@@ -52,13 +52,11 @@
     <div class="dashboard hidden" id="dashboard">
         <nav>
             <nav>
-
                 <div class="logo"><i class="fas fa-cow"></i> Cattle Manager 🐮</div>
-
                 <button class="hamburger" onclick="toggleMenu()">
                     <i class="fas fa-bars"></i>
                 </button>
-                
+
                 <div class="nav-tabs">
                     <button class="tab-btn active" onclick="switchTab('manage')">
                         <svg class="nav-icon manage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -105,6 +103,14 @@
                         Tasks
                     </button>
 
+                    <button class="tab-btn" onclick="switchTab('health')">
+                        <svg class="nav-icon health-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                        AI Vet
+                    </button>
+
                 </div>
                 <div class="user-info">
                     <span id="display-username">User</span>
@@ -126,7 +132,18 @@
                         <h4>Basic Information</h4>
                         <div class="grid-row">
                             <input type="text" id="c-id" placeholder="Unique ID / Tag" required>
-                            <input type="text" id="c-breed" placeholder="Breed" required>
+
+                            <div style="display: flex; gap: 5px;">
+                                <input type="text" id="c-breed" placeholder="Breed" required style="flex: 1;">
+                                <button type="button" class="btn-secondary"
+                                    onclick="document.getElementById('form-breed-upload').click()" title="AI Scan"
+                                    style="background: var(--primary); padding: 0 15px;">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                                <input type="file" id="form-breed-upload" hidden accept="image/*"
+                                    onchange="autoFillBreed(event)">
+                            </div>
+
                             <div class="input-group">
                                 <label>DOB:</label>
                                 <input type="date" id="c-dob" required>
@@ -150,7 +167,7 @@
                         </div>
 
                         <div id="lactation-section">
-                            <h4>2. Lactation Records</h4>
+                            <h4>2. Lactation Records & Pricing</h4>
                             <div class="grid-row">
                                 <div class="input-group">
                                     <label>Start Date:</label>
@@ -161,6 +178,19 @@
                                     <input type="date" id="l-end">
                                 </div>
                                 <input type="number" id="l-yield" placeholder="Yield (Litres)">
+                            </div>
+                            <div class="grid-row" style="margin-top: 10px;">
+                                <div class="input-group">
+                                    <label>Milk Sale Status:</label>
+                                    <select id="l-sale-status" onchange="toggleMilkPrice()">
+                                        <option value="Active">Active Sale</option>
+                                        <option value="Not for Sale">Not for Sale</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Price per Litre (₹):</label>
+                                    <input type="number" id="l-price" placeholder="e.g. 40" value="40">
+                                </div>
                             </div>
                         </div>
 
@@ -236,7 +266,7 @@
                                     <th>Gender</th>
                                     <th>Vaccine</th>
                                     <th>Yield (L)</th>
-                                    <th>Disease</th>
+                                    <th>Price/L</th> <th>Disease</th>
                                     <th>Offspring</th>
                                     <th>Actions</th>
                                 </tr>
@@ -323,11 +353,6 @@
                                 <button type="submit" class="btn-secondary" style="width:100%;">Add Expense</button>
                             </form>
 
-                            <div style="margin-top: 20px;">
-                                <label><strong>Current Milk Price (₹/L):</strong></label>
-                                <input type="number" id="milk-price" value="40" onchange="calculateFinancials()"
-                                    style="width: 100px; font-weight: bold; color: var(--primary); padding: 5px;">
-                            </div>
                         </div>
 
                         <div style="flex: 1; border-left: 1px solid #eee; padding-left: 20px;">
@@ -422,11 +447,135 @@
                     </div>
                 </section>
             </div>
+
+            <div id="tab-health" class="hidden">
+                <section class="card slide-in">
+                    <h3><i class="fas fa-stethoscope"></i> AI Health & Vet Assistant</h3>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                        Ask about diseases, symptoms, medications, or vaccination schedules.
+                    </p>
+
+                    <div class="chat-container">
+                        <div id="chat-box" class="chat-box">
+                            <div class="chat-msg ai-msg">
+                                <strong>AI Vet:</strong> Hello! I am your farm's AI Veterinary Assistant. Describe a
+                                symptom (e.g., "blisters on hooves") or ask about a specific disease.
+                            </div>
+                        </div>
+
+                        <form onsubmit="event.preventDefault(); askAIVet();" class="chat-input-area">
+                            <input type="text" id="ai-prompt" placeholder="Type your health question here..." required
+                                autocomplete="off">
+                            <button type="submit" class="btn-primary" style="border-radius: 20px; padding: 10px 20px;">
+                                <i class="fas fa-paper-plane"></i> Ask
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="card slide-in" style="animation-delay: 0.1s; margin-top: 20px;">
+                    <h3><i class="fas fa-book-medical"></i> Veterinary Reference Guides</h3>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                        Standard guidelines. Always consult a certified veterinarian before administering medications.
+                    </p>
+
+                    <h4 style="margin-top: 15px;"><i class="fas fa-syringe"></i> Common Vaccination Schedule</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Vaccine Name</th>
+                                    <th>Target Disease</th>
+                                    <th>Recommended Time / Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>FMD Vaccine</strong></td>
+                                    <td>Foot and Mouth Disease</td>
+                                    <td>Twice a year (Pre-monsoon and Post-monsoon)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>HS Vaccine</strong></td>
+                                    <td>Hemorrhagic Septicemia</td>
+                                    <td>Annually (Pre-monsoon, usually May/June)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BQ Vaccine</strong></td>
+                                    <td>Black Quarter</td>
+                                    <td>Annually (Pre-monsoon, usually May/June)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Brucella Vaccine</strong></td>
+                                    <td>Brucellosis</td>
+                                    <td>Once in a lifetime (Only for female calves 4-8 months old)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Theileria Vaccine</strong></td>
+                                    <td>Theileriosis (Tick-borne)</td>
+                                    <td>Once in a lifetime (Calves above 2 months)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4 style="margin-top: 25px;"><i class="fas fa-pills"></i> Common Diseases & Treatments</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Disease</th>
+                                    <th>Common Symptoms</th>
+                                    <th>Standard Medication / Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Mastitis</strong></td>
+                                    <td>Swollen/hard udder, blood or clots in milk, fever.</td>
+                                    <td>Intramammary antibiotic tubes, NSAIDs (Painkillers), frequent milking.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FMD (Foot & Mouth)</strong></td>
+                                    <td>Blisters on mouth/hooves, severe drooling, lameness.</td>
+                                    <td>Isolate animal, wash wounds with Potassium Permanganate (PP) solution,
+                                        Antipyretics. (Viral: No direct cure).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tick Fever (Babesiosis)</strong></td>
+                                    <td>High fever, coffee-colored urine, pale gums, weakness.</td>
+                                    <td>Anti-protozoal drugs (e.g., Diminazene aceturate), iron supplements, strict tick
+                                        control.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Milk Fever</strong></td>
+                                    <td>Inability to stand (downer cow), cold ears, muscle tremors right after calving.
+                                    </td>
+                                    <td>Urgent Intravenous (IV) Calcium borogluconate. Do not give oral fluids if cow
+                                        cannot swallow.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Lumpy Skin Disease (LSD)</strong></td>
+                                    <td>Nodules/lumps all over skin, high fever, swollen lymph nodes.</td>
+                                    <td>Isolate strictly. Antibiotics (to prevent secondary infections), wound sprays,
+                                        mosquito/fly control.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
         </main>
     </div>
     <div class="dashboard hidden" id="admin-dashboard">
         <nav style="background-color: #333;">
             <div class="logo"><i class="fas fa-user-shield"></i> CattleManager Admin</div>
+
+            <button class="hamburger" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
             <div class="user-info">
                 <span>Administrator</span>
                 <button onclick="logout()" class="logout-btn">Logout</button>
@@ -501,6 +650,5 @@
     </div>
     <script src="script.js"></script>
 </body>
-
 
 </html>
