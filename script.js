@@ -1138,6 +1138,7 @@ function askAIVet() {
 }
 
 function generateFakeAIResponse(query) {
+    
     if (query.includes('blister') || query.includes('mouth') || query.includes('hoof')) {
         return "Those symptoms sound like **Foot-and-Mouth Disease (FMD)**. It is highly contagious. <br><br><strong>Action:</strong> Isolate the animal immediately and contact your local veterinary authority. Ensure standard FMD vaccination protocols are up to date.";
     }
@@ -1147,11 +1148,16 @@ function generateFakeAIResponse(query) {
     else if (query.includes('fever') || query.includes('milk') || query.includes('drop')) {
         return "A sudden drop in milk yield accompanied by a fever could be indicative of **Mastitis** or **Tick Fever**. <br><br>Check the udder for swelling or hardness. If it is Mastitis, intramammary antibiotics are usually prescribed by a vet.";
     }
+    else if (query.includes('infection') || query.includes('swelling') || query.includes('pus')) {
+        return "Infections can be serious. Look for signs of pus, redness, or warmth in the affected area. Consult a vet for proper diagnosis and treatment. In the meantime, keep the area clean and isolate the cow to prevent spread.";
+    }
+    else if (query.includes('hello') || query.includes('help') || query.includes('hi')) {
+        return "Hello! I'm your AI Vet. How can I assist you with your cattle's health today?";
+    }
     else {
         return "I am currently running in offline simulation mode. Based on my mock database, I recommend monitoring the cattle's temperature and isolating them if symptoms worsen. Please consult a physical vet for an accurate diagnosis.";
     }
 }
-
 function autoFillBreed(event) {
     const file = event.target.files[0];
     if (!file) return;
