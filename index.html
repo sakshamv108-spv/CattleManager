@@ -51,73 +51,82 @@
 
     <div class="dashboard hidden" id="dashboard">
         <nav>
-            <nav>
-                <div class="logo"><i class="fas fa-cow"></i> Cattle Manager 🐮</div>
-                <button class="hamburger" onclick="toggleMenu()">
-                    <i class="fas fa-bars"></i>
+            <div class="logo"><i class="fas fa-cow"></i> Cattle Manager 🐮</div>
+            <button class="hamburger" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('manage')">
+                    <svg class="nav-icon manage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                    Manage Cattle
                 </button>
 
-                <div class="nav-tabs">
-                    <button class="tab-btn active" onclick="switchTab('manage')">
-                        <svg class="nav-icon manage-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                        </svg>
-                        Manage Cattle
-                    </button>
+                <button class="tab-btn" onclick="switchTab('breed')">
+                    <svg class="nav-icon ai-sparkle" viewBox="0 0 100 100" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M 50 0 C 50 25, 75 50, 100 50 C 75 50, 50 75, 50 100 C 50 75, 25 50, 0 50 C 25 50, 50 25, 50 0 Z" />
+                    </svg>
+                    Breed Recognition
+                </button>
 
-                    <button class="tab-btn" onclick="switchTab('breed')">
-                        <svg class="nav-icon ai-sparkle" viewBox="0 0 100 100" fill="currentColor"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M 50 0 C 50 25, 75 50, 100 50 C 75 50, 50 75, 50 100 C 50 75, 25 50, 0 50 C 25 50, 50 25, 50 0 Z" />
-                        </svg>
-                        Breed Recognition
-                    </button>
+                <button class="tab-btn" onclick="switchTab('finance')">
+                    <svg class="nav-icon chart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Financials
+                </button>
 
-                    <button class="tab-btn" onclick="switchTab('finance')">
-                        <svg class="nav-icon chart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                        Financials
-                    </button>
+                <button class="tab-btn" onclick="switchTab('profile')">
+                    <svg class="nav-icon user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Profile
+                </button>
 
-                    <button class="tab-btn" onclick="switchTab('profile')">
-                        <svg class="nav-icon user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        Profile
-                    </button>
+                <button class="tab-btn" onclick="switchTab('tasks')">
+                    <svg class="nav-icon task-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    Tasks
+                </button>
 
-                    <button class="tab-btn" onclick="switchTab('tasks')">
-                        <svg class="nav-icon task-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 11 12 14 22 4"></polyline>
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                        </svg>
-                        Tasks
-                    </button>
+                <button class="tab-btn" onclick="switchTab('health')">
+                    <svg class="nav-icon health-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                    AI Vet
+                </button>
 
-                    <button class="tab-btn" onclick="switchTab('health')">
-                        <svg class="nav-icon health-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                        </svg>
-                        AI Vet
-                    </button>
+                <button class="tab-btn" onclick="switchTab('feedback')">
+                    <svg class="nav-icon feedback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                        </path>
+                    </svg>
+                    Feedback
+                </button>
 
-                </div>
-                <div class="user-info">
-                    <span id="display-username">User</span>
-                    <button onclick="logout()" class="logout-btn">Logout</button>
-                </div>
-            </nav>
+            </div>
+            <div class="user-info">
+                <span id="display-username">User</span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
         </nav>
+
 
         <main>
             <div id="tab-manage">
@@ -266,7 +275,8 @@
                                     <th>Gender</th>
                                     <th>Vaccine</th>
                                     <th>Yield (L)</th>
-                                    <th>Price/L</th> <th>Disease</th>
+                                    <th>Price/L</th>
+                                    <th>Disease</th>
                                     <th>Offspring</th>
                                     <th>Actions</th>
                                 </tr>
@@ -566,6 +576,51 @@
                 </section>
 
             </div>
+
+            <div id="tab-feedback" class="hidden">
+                <section class="card slide-in">
+                    <h3><i class="fas fa-star"></i> Rate & Review</h3>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                        Your feedback is <strong>100% anonymous</strong>. We do not track your username on this form.
+                        Help us improve CattleManager Pro!
+                    </p>
+
+                    <form onsubmit="event.preventDefault(); submitFeedback();">
+                        <div class="grid-row">
+                            <div class="input-group">
+                                <label>Feedback Category:</label>
+                                <select id="f-category" required>
+                                    <option value="Feature Request">💡 Feature Request</option>
+                                    <option value="Bug Report">🐛 Bug Report</option>
+                                    <option value="User Interface">🎨 User Interface</option>
+                                    <option value="General Feedback">📝 General Feedback</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>App Rating:</label>
+                                <select id="f-rating" required>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 - Good)</option>
+                                    <option value="3">⭐⭐⭐ (3 - Average)</option>
+                                    <option value="2">⭐⭐ (2 - Poor)</option>
+                                    <option value="1">⭐ (1 - Terrible)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="margin-top: 15px;">
+                            <label>Your Feedback:</label>
+                            <textarea id="f-text" rows="4" placeholder="Tell us what you think..." required
+                                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="margin-top: 15px;">
+                            <i class="fas fa-paper-plane"></i> Submit Feedback
+                        </button>
+                    </form>
+                </section>
+            </div>
+
         </main>
     </div>
     <div class="dashboard hidden" id="admin-dashboard">
@@ -584,27 +639,77 @@
 
         <main>
             <div id="admin-home">
-                <div class="grid-row">
-                    <div class="card" style="text-align: center;">
-                        <h3>Total Users</h3>
-                        <h1 id="admin-total-users" style="font-size: 3rem; color: var(--primary);">0</h1>
+
+                <div class="stats-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 20px;">
+                    <div class="stat-box" style="border-left: 4px solid var(--primary);">
+                        <h4>Total Users</h4>
+                        <h1 id="admin-total-users" style="font-size: 2.5rem; color: var(--primary);">0</h1>
                     </div>
-                    <div class="card" style="text-align: center;">
-                        <h3>Total Cattle</h3>
-                        <h1 id="admin-total-cattle" style="font-size: 3rem; color: var(--secondary);">0</h1>
+                    <div class="stat-box" style="border-left: 4px solid var(--secondary);">
+                        <h4>Total Cattle Managed</h4>
+                        <h1 id="admin-total-cattle" style="font-size: 2.5rem; color: var(--secondary);">0</h1>
+                    </div>
+                    <div class="stat-box" style="border-left: 4px solid #f9a825;">
+                        <h4>Feedback Received</h4>
+                        <h1 id="admin-total-feedback" style="font-size: 2.5rem; color: #f9a825;">0</h1>
                     </div>
                 </div>
 
                 <section class="card">
-                    <h3><i class="fas fa-users-cog"></i> User Management</h3>
-                    <div class="table-container">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="border: none; margin: 0; padding: 0;"><i class="fas fa-users-cog"></i> User
+                            Management</h3>
+
+                        <div style="position: relative; width: 250px;">
+                            <i class="fas fa-search"
+                                style="position: absolute; left: 10px; top: 10px; color: #888;"></i>
+                            <input type="text" id="admin-search-user" placeholder="Search Username or Phone..."
+                                onkeyup="renderUserTable()"
+                                style="width: 100%; padding: 8px 10px 8px 35px; border-radius: 20px; border: 1px solid #ccc; outline: none;">
+                        </div>
+                    </div>
+
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
                         <table id="admin-users-table">
-                            <thead>
+                            <thead style="position: sticky; top: 0; z-index: 1;">
                                 <tr>
                                     <th>Username</th>
                                     <th>Phone</th>
                                     <th>Cattle Count</th>
                                     <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card" style="margin-top: 20px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="border: none; margin: 0; padding: 0;"><i class="fas fa-comments"></i> Anonymous
+                            Feedback</h3>
+
+                        <select id="admin-feedback-filter" onchange="renderAdminFeedback()"
+                            style="width: 200px; padding: 8px; border-radius: 4px;">
+                            <option value="All">All Categories</option>
+                            <option value="Bug Report">🐛 Bug Reports</option>
+                            <option value="Feature Request">💡 Feature Requests</option>
+                            <option value="User Interface">🎨 User Interface</option>
+                            <option value="General Feedback">📝 General</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table id="admin-feedback-table">
+                            <thead style="position: sticky; top: 0; z-index: 1;">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Rating</th>
+                                    <th>Feedback</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -645,6 +750,7 @@
                         </table>
                     </div>
                 </section>
+
             </div>
         </main>
     </div>
