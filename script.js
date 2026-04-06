@@ -3,6 +3,7 @@ const DATA_KEY = 'cattle_records';
 const SESSION_KEY = 'cattle_session';
 const EXPENSE_KEY = 'cattle_expenses';
 const TASKS_KEY = 'cattle_tasks';
+const FEEDBACK_KEY = 'cattle_feedback';
 
 /* Function finder for
 1. getStoredUsers()
@@ -262,7 +263,7 @@ function renderTable() {
         let yieldDisplay = cow.gender === 'Male' ? 'N/A' : (cow.lactation.yield || '0');
 
         // NEW: Price Display Logic
-        let priceDisplay = cow.gender === 'Male' ? 'N/A' : 
+        let priceDisplay = cow.gender === 'Male' ? 'N/A' :
             (cow.lactation.saleStatus === 'Not for Sale' ? '<span style="color:#888;">Not for Sale</span>' : `₹ ${cow.lactation.price || '0'}`);
 
         // Clean display for Disease
@@ -363,7 +364,7 @@ function exportToCSV() {
     data.forEach(row => {
         // Handle Price logic for CSV (no HTML tags)
         let priceCSV = row.gender === 'Male' ? 'N/A' : (row.lactation.saleStatus === 'Not for Sale' ? 'Not for Sale' : (row.lactation.price || '0'));
-        
+
         let rowData = [
             row.id,
             row.breed,
@@ -477,8 +478,8 @@ function switchTab(tabName) {
     document.getElementById('tab-finance').classList.add('hidden');
     document.getElementById('tab-profile').classList.add('hidden');
     document.getElementById('tab-tasks').classList.add('hidden');
-    document.getElementById('tab-health').classList.add('hidden'); // NEW
-
+    document.getElementById('tab-health').classList.add('hidden'); 
+    document.getElementById('tab-feedback').classList.add('hidden'); 
     // Reset Buttons
     const buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
@@ -502,12 +503,14 @@ function switchTab(tabName) {
         document.getElementById('tab-tasks').classList.remove('hidden');
         buttons[4].classList.add('active');
         renderTasks();
-    } else if (tabName === 'health') { // NEW CASE: AI VET
+    } else if (tabName === 'health') { 
         document.getElementById('tab-health').classList.remove('hidden');
         buttons[5].classList.add('active');
+    } else if (tabName === 'feedback') { 
+        document.getElementById('tab-feedback').classList.remove('hidden');
+        buttons[6].classList.add('active');
     }
 
-    // Auto-close mobile menu after a tab is clicked
     document.querySelector('.nav-tabs').classList.remove('show-menu');
     document.querySelectorAll('.user-info').forEach(info => info.classList.remove('show-menu'));
 }
@@ -573,14 +576,68 @@ function loadAdminDashboard() {
 
     renderAdminStats();
     renderUserTable();
+    renderAdminFeedback(); // Render feedback table
 }
 
 function renderAdminStats() {
     const users = getStoredUsers();
     const allCattle = JSON.parse(localStorage.getItem(DATA_KEY)) || [];
+    const allFeedback = JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || [];
 
     document.getElementById('admin-total-users').innerText = users.length;
     document.getElementById('admin-total-cattle').innerText = allCattle.length;
+    document.getElementById('admin-total-feedback').innerText = allFeedback.length; // NEW
+}
+
+// --- FEEDBACK LOGIC (ADMIN) ---
+
+function renderAdminFeedback() {
+    const tbody = document.querySelector('#admin-feedback-table tbody');
+    if (!tbody) return; 
+    
+    tbody.innerHTML = '';
+    let feedbacks = JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || [];
+
+    // NEW: Category Filter Logic
+    const filterElement = document.getElementById('admin-feedback-filter');
+    const filterCategory = filterElement ? filterElement.value : 'All';
+
+    if (filterCategory !== 'All') {
+        feedbacks = feedbacks.filter(f => f.category === filterCategory);
+    }
+
+    if (feedbacks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No feedback found in this category.</td></tr>';
+        return;
+    }
+
+    feedbacks.slice().reverse().forEach((f) => {
+        const tr = document.createElement('tr');
+        let stars = '⭐'.repeat(parseInt(f.rating));
+        
+        tr.innerHTML = `
+            <td style="white-space: nowrap;">${f.date}</td>
+            <td style="white-space: nowrap;"><span style="background: #e8f5e9; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; color: var(--dark);"><strong>${f.category}</strong></span></td>
+            <td style="white-space: nowrap;">${stars}</td>
+            <td>${f.text}</td>
+            <td>
+                <button class="btn-secondary" style="background: #d32f2f; padding: 5px 10px;" onclick="deleteFeedback(${f.id})" title="Delete Feedback">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function deleteFeedback(id) {
+    if (!confirm("Are you sure you want to delete this feedback?")) return;
+
+    let feedbacks = JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || [];
+    feedbacks = feedbacks.filter(f => f.id !== id);
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(feedbacks));
+
+    renderAdminFeedback(); // Refresh table
 }
 
 function renderUserTable() {
@@ -589,14 +646,25 @@ function renderUserTable() {
 
     const users = getStoredUsers();
     const allCattle = JSON.parse(localStorage.getItem(DATA_KEY)) || [];
+    
+    // NEW: Get Search Term
+    const searchInput = document.getElementById('admin-search-user');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
 
     users.forEach((u, index) => {
+        // NEW: Search Filter Logic
+        if (searchTerm && 
+            !u.username.toLowerCase().includes(searchTerm) && 
+            !(u.phone && u.phone.includes(searchTerm))) {
+            return; // Skip if it doesn't match search
+        }
+
         const userCattleCount = allCattle.filter(c => c.owner === u.username).length;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.username}</strong></td>
-            <td>${u.phone}</td>
+            <td>${u.phone || 'N/A'}</td>
             <td>${userCattleCount}</td>
             <td>
                 <button class="btn-secondary" style="background: var(--primary); margin-right:5px;" onclick="viewUserDetail(${index})" title="View Details">
@@ -1091,7 +1159,7 @@ function renderTasks() {
     });
 }
 
-// -------------------- AI VET ASSISTANT LOGIC ---------------------
+// --- AI VET ASSISTANT LOGIC ---
 
 function askAIVet() {
     const inputField = document.getElementById('ai-prompt');
@@ -1123,7 +1191,7 @@ function askAIVet() {
         // Remove typing indicator
         document.getElementById('ai-typing').remove();
 
-        // to generate Fake Response
+        // Generate Fake Response
         let aiResponse = generateFakeAIResponse(userText.toLowerCase());
 
         // Display AI Message
@@ -1138,7 +1206,12 @@ function askAIVet() {
 }
 
 function generateFakeAIResponse(query) {
-    
+    // ------------------------------------------------------------------------
+    // FUTURE AI INTEGRATION POINT: 
+    // Later on, you can replace this entire function with a real API call 
+    // to Google Gemini, OpenAI, or a custom veterinary database.
+    // ------------------------------------------------------------------------
+
     if (query.includes('blister') || query.includes('mouth') || query.includes('hoof')) {
         return "Those symptoms sound like **Foot-and-Mouth Disease (FMD)**. It is highly contagious. <br><br><strong>Action:</strong> Isolate the animal immediately and contact your local veterinary authority. Ensure standard FMD vaccination protocols are up to date.";
     }
@@ -1158,6 +1231,9 @@ function generateFakeAIResponse(query) {
         return "I am currently running in offline simulation mode. Based on my mock database, I recommend monitoring the cattle's temperature and isolating them if symptoms worsen. Please consult a physical vet for an accurate diagnosis.";
     }
 }
+
+// --- NEW: FORM HELPERS ---
+
 function autoFillBreed(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1190,4 +1266,29 @@ function toggleMilkPrice() {
         priceInput.style.backgroundColor = '#fff';
         priceInput.title = "";
     }
+}
+
+// --- FEEDBACK LOGIC (USER) ---
+
+function submitFeedback() {
+    const category = document.getElementById('f-category').value;
+    const rating = document.getElementById('f-rating').value;
+    const text = document.getElementById('f-text').value;
+
+    const feedbackEntry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        category: category,
+        rating: rating,
+        text: text
+        // Note: NO user ID is saved to maintain 100% anonymity
+    };
+
+    let feedbacks = JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || [];
+    feedbacks.push(feedbackEntry);
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(feedbacks));
+
+    alert("Thank you! Your anonymous feedback has been submitted.");
+    document.getElementById('f-text').value = ''; // clear text
+    document.getElementById('f-rating').value = '5'; // reset to 5 stars
 }
