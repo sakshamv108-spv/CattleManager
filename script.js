@@ -1206,11 +1206,6 @@ function askAIVet() {
 }
 
 function generateFakeAIResponse(query) {
-    // ------------------------------------------------------------------------
-    // FUTURE AI INTEGRATION POINT: 
-    // Later on, you can replace this entire function with a real API call 
-    // to Google Gemini, OpenAI, or a custom veterinary database.
-    // ------------------------------------------------------------------------
 
     if (query.includes('blister') || query.includes('mouth') || query.includes('hoof')) {
         return "Those symptoms sound like **Foot-and-Mouth Disease (FMD)**. It is highly contagious. <br><br><strong>Action:</strong> Isolate the animal immediately and contact your local veterinary authority. Ensure standard FMD vaccination protocols are up to date.";
@@ -1243,7 +1238,6 @@ function autoFillBreed(event) {
     breedInput.style.color = "var(--primary)";
     breedInput.style.fontWeight = "bold";
 
-    // Simulate AI delay
     setTimeout(() => {
         const randomBreed = BREEDS_DB[Math.floor(Math.random() * BREEDS_DB.length)];
         breedInput.value = randomBreed;
@@ -1281,7 +1275,6 @@ function submitFeedback() {
         category: category,
         rating: rating,
         text: text
-        // Note: NO user ID is saved to maintain 100% anonymity
     };
 
     let feedbacks = JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || [];
